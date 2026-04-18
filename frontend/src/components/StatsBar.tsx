@@ -18,11 +18,11 @@ function StatCard({
   sub?: string;
 }) {
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 min-w-0">
+    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-4 py-3 min-w-0">
       <p className="text-[11px] uppercase tracking-wider text-zinc-500 truncate">
         {label}
       </p>
-      <p className="text-xl font-semibold text-zinc-100 font-mono mt-0.5">
+      <p className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 font-mono mt-0.5">
         {value}
       </p>
       {sub && (

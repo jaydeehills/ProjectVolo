@@ -40,12 +40,12 @@ export default function MarketBrowser({
   }, [markets, search]);
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-lg flex flex-col h-full">
+    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg flex flex-col h-full">
       {/* Header + search */}
-      <div className="px-3 pt-3 pb-2 border-b border-zinc-800 space-y-2">
+      <div className="px-3 pt-3 pb-2 border-b border-zinc-200 dark:border-zinc-800 space-y-2">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-zinc-100">Markets</h2>
-          <span className="text-[11px] text-zinc-600">
+          <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Markets</h2>
+          <span className="text-[11px] text-zinc-400 dark:text-zinc-600">
             {filtered.length}
             {search && ` / ${markets.length}`}
           </span>
@@ -55,46 +55,46 @@ export default function MarketBrowser({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search markets..."
-          className="w-full bg-zinc-800 border border-zinc-700 rounded-md px-2.5 py-1.5 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-500 transition-colors"
+          className="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-md px-2.5 py-1.5 text-xs text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-500 transition-colors"
         />
       </div>
 
       {/* List */}
       <div className="flex-1 overflow-y-auto min-h-0">
         {loading ? (
-          <div className="p-4 text-xs text-zinc-600 animate-pulse">
+          <div className="p-4 text-xs text-zinc-400 dark:text-zinc-600 animate-pulse">
             Loading markets...
           </div>
         ) : filtered.length === 0 ? (
-          <div className="p-4 text-xs text-zinc-600">
+          <div className="p-4 text-xs text-zinc-400 dark:text-zinc-600">
             {search ? "No markets match your search." : "No markets available."}
           </div>
         ) : (
-          <div className="divide-y divide-zinc-800/50">
+          <div className="divide-y divide-zinc-100 dark:divide-zinc-800/50">
             {filtered.map((m) => (
               <a
                 key={m.market_id}
                 href={m.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block px-3 py-2.5 hover:bg-zinc-800/50 transition-colors"
+                className="block px-3 py-2.5 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
               >
-                <p className="text-xs text-zinc-200 leading-snug line-clamp-2">
+                <p className="text-xs text-zinc-800 dark:text-zinc-200 leading-snug line-clamp-2">
                   {m.question}
                 </p>
                 <div className="flex items-center gap-2 mt-1.5 text-[11px] text-zinc-500">
-                  <span className="text-zinc-600">{m.category}</span>
-                  <span className="text-zinc-700">|</span>
+                  <span className="text-zinc-400 dark:text-zinc-600">{m.category}</span>
+                  <span className="text-zinc-300 dark:text-zinc-700">|</span>
                   <span>
                     Yes{" "}
-                    <span className="font-mono text-emerald-500">
+                    <span className="font-mono text-emerald-600 dark:text-emerald-500">
                       {(m.yes_price * 100).toFixed(0)}¢
                     </span>
                   </span>
                   <span className="ml-auto font-mono">
                     {formatVolume(m.volume)}
                   </span>
-                  <span className="text-zinc-600">{daysUntil(m.close_date)}</span>
+                  <span className="text-zinc-400 dark:text-zinc-600">{daysUntil(m.close_date)}</span>
                 </div>
               </a>
             ))}

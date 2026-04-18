@@ -2,12 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Theme tokens ─────────────────────────────────────────── */
 :root {
+  --background: #fafafa;
+  --foreground: #18181b;
+}
+
+.dark {
   --background: #09090b;
   --foreground: #fafafa;
 }
 
+/* ── Base styles ──────────────────────────────────────────── */
 body {
   color: var(--foreground);
   background: var(--background);
+}
+
+/* ── Smooth theme transitions ─────────────────────────────── */
+*,
+*::before,
+*::after {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 150ms;
+  transition-timing-function: ease;
+}
+
+/* Disable transitions on page load (added/removed by the theme script) */
+.no-transition *,
+.no-transition *::before,
+.no-transition *::after {
+  transition: none !important;
 }

@@ -8,10 +8,10 @@ from app.models.schemas import Market
 
 logger = logging.getLogger(__name__)
 
-GAMMA_API_URL = "https://gamma-api.polymarket.com/markets"
+GAMMA_API_URL = "https://gamma-api.polymarket.com/events"
 POLYMARKET_BASE_URL = "https://polymarket.com/event"
 
-MIN_VOLUME = 10_000          # $10k minimum volume
+MIN_VOLUME = 100_000         # $100k minimum volume (applied at event level)
 MIN_DAYS_TO_CLOSE = 7        # Must close > 7 days from now
 CACHE_TTL_SECONDS = 60       # Cache results for 60s
 FETCH_LIMIT = 100            # Max per page from Gamma API
@@ -39,54 +39,70 @@ def _parse_datetime(raw: Optional[str]) -> Optional[datetime]:
         return None
 
 
-def _normalize_market(raw: dict) -> Optional[Market]:
-    """Convert a raw Gamma API market dict into our clean Market schema.
+def _normalize_event(raw_event: dict, raw_market: dict) -> Optional[Market]:
+    """Convert a Gamma event + one of its nested markets into our Market schema.
+
+    The Gamma /events endpoint is used instead of /markets so we get the
+    event-level slug, which is what Polymarket's /event/ URL route requires.
+    Using the market-level slug in that route produces a 404.
 
     Returns None if the market doesn't meet our filters.
     """
-    # --- Parse close date and apply minimum-days filter ---
-    close_date = _parse_datetime(raw.get("endDate"))
+    # --- Parse close date from event and apply minimum-days filter ---
+    close_date = _parse_datetime(raw_event.get("endDate"))
     if close_date is None:
         return None
     now = datetime.now(timezone.utc)
     if close_date <= now + timedelta(days=MIN_DAYS_TO_CLOSE):
         return None
 
-    # --- Volume filter ---
+    # --- Volume filter at event level ---
     try:
-        volume = float(raw.get("volume", 0) or 0)
+        volume = float(raw_event.get("volume", 0) or 0)
     except (ValueError, TypeError):
         volume = 0.0
     if volume < MIN_VOLUME:
         return None
 
-    # --- Extract yes/no prices from the tokens array ---
-    tokens = raw.get("tokens", [])
+    # --- Extract yes/no prices from the market's parallel outcomes arrays ---
+    # The events endpoint uses outcomePrices + outcomes arrays (not tokens).
+    outcomes = raw_market.get("outcomes", [])
+    outcome_prices = raw_market.get("outcomePrices", [])
     yes_price = 0.5
     no_price = 0.5
-    for token in tokens:
-        outcome = (token.get("outcome") or "").lower()
-        price = float(token.get("price", 0) or 0)
-        if outcome == "yes":
+    for outcome, price_str in zip(outcomes, outcome_prices):
+        try:
+            price = float(price_str or 0)
+        except (ValueError, TypeError):
+            price = 0.0
+        if outcome.lower() == "yes":
             yes_price = price
-        elif outcome == "no":
+        elif outcome.lower() == "no":
             no_price = price
 
-    # If there are exactly 2 tokens but no explicit "yes"/"no" labels,
-    # treat the first as yes and second as no
-    if len(tokens) == 2 and yes_price == 0.5 and no_price == 0.5:
-        yes_price = float(tokens[0].get("price", 0.5) or 0.5)
-        no_price = float(tokens[1].get("price", 0.5) or 0.5)
+    # If outcomes aren't labelled "yes"/"no" but there are exactly 2,
+    # treat the first as yes and second as no.
+    if yes_price == 0.5 and no_price == 0.5 and len(outcome_prices) == 2:
+        try:
+            yes_price = float(outcome_prices[0] or 0.5)
+            no_price = float(outcome_prices[1] or 0.5)
+        except (ValueError, TypeError):
+            pass
 
-    # --- Build the slug-based URL ---
-    slug = raw.get("slug", "")
-    condition_id = raw.get("conditionId", raw.get("id", ""))
-    url = f"{POLYMARKET_BASE_URL}/{slug}" if slug else f"{POLYMARKET_BASE_URL}/{condition_id}"
+    # --- Build URL from the EVENT slug (not the market slug) ---
+    # polymarket.com/event/{event-slug} is the correct format.
+    event_slug = raw_event.get("slug", "")
+    event_id = str(raw_event.get("id", ""))
+    url = (
+        f"{POLYMARKET_BASE_URL}/{event_slug}"
+        if event_slug
+        else f"{POLYMARKET_BASE_URL}/{event_id}"
+    )
 
     return Market(
-        market_id=str(raw.get("id", "")),
-        question=raw.get("question", ""),
-        category=raw.get("category", "Unknown"),
+        market_id=str(raw_market.get("id", "")),  # market-level ID for per-market caching
+        question=raw_market.get("question", raw_event.get("title", "")),
+        category=raw_event.get("category", "Unknown"),
         yes_price=round(yes_price, 4),
         no_price=round(no_price, 4),
         volume=round(volume, 2),
@@ -98,6 +114,10 @@ def _normalize_market(raw: dict) -> Optional[Market]:
 async def fetch_markets() -> List[Market]:
     """Fetch, filter, and normalize open markets from Polymarket.
 
+    Calls the Gamma /events endpoint (not /markets) to obtain event-level
+    slugs for correct URL construction. Each event may contain multiple
+    nested markets; one Market entry is created per nested market.
+
     Results are cached for 60 seconds.
     """
     global _cache
@@ -107,7 +127,7 @@ async def fetch_markets() -> List[Market]:
         logger.info("Returning %d cached markets", len(cached_markets))
         return cached_markets
 
-    logger.info("Cache miss — fetching markets from Gamma API")
+    logger.info("Cache miss — fetching events from Gamma API")
     all_markets: List[Market] = []
     offset = 0
 
@@ -135,20 +155,21 @@ async def fetch_markets() -> List[Market]:
                 )
                 break
 
-            raw_markets = resp.json()
-            if not raw_markets:
+            raw_events = resp.json()
+            if not raw_events:
                 break
 
-            for raw in raw_markets:
-                market = _normalize_market(raw)
-                if market is not None:
-                    all_markets.append(market)
+            for raw_event in raw_events:
+                for raw_market in raw_event.get("markets", []):
+                    market = _normalize_event(raw_event, raw_market)
+                    if market is not None:
+                        all_markets.append(market)
 
-            # The Gamma API sorts by volume desc. Once we see a page where
-            # every market is below our volume floor, stop paginating.
-            page_volumes = [float(m.get("volume", 0) or 0) for m in raw_markets]
+            # Events are sorted by volume desc. Stop once a full page is
+            # below the volume floor.
+            page_volumes = [float(e.get("volume", 0) or 0) for e in raw_events]
             if all(v < MIN_VOLUME for v in page_volumes):
-                logger.info("All markets on page below volume floor, stopping pagination")
+                logger.info("All events on page below volume floor, stopping pagination")
                 break
 
             offset += FETCH_LIMIT
@@ -158,7 +179,7 @@ async def fetch_markets() -> List[Market]:
                 break
 
     logger.info(
-        "Fetched %d markets after filtering (volume>$%s, closes>%dd)",
+        "Fetched %d markets after filtering (event volume>$%s, closes>%dd)",
         len(all_markets),
         f"{MIN_VOLUME:,}",
         MIN_DAYS_TO_CLOSE,
@@ -169,11 +190,15 @@ async def fetch_markets() -> List[Market]:
 
 
 async def fetch_market_by_id(market_id: str) -> Optional[Market]:
-    """Fetch a single market by ID and normalize it (no caching)."""
+    """Fetch a single market by ID from the events endpoint (no caching).
+
+    Searches events that contain a nested market with the given ID.
+    """
     logger.info("Fetching single market: %s", market_id)
     try:
         async with httpx.AsyncClient(timeout=15.0) as client:
-            resp = await client.get(f"{GAMMA_API_URL}/{market_id}")
+            # The events endpoint supports filtering by nested market ID
+            resp = await client.get(GAMMA_API_URL, params={"markets": market_id})
             if resp.status_code == 404:
                 logger.warning("Market %s not found", market_id)
                 return None
@@ -185,4 +210,14 @@ async def fetch_market_by_id(market_id: str) -> Optional[Market]:
         logger.error("Timeout fetching market %s", market_id)
         return None
 
-    return _normalize_market(resp.json())
+    raw_events = resp.json()
+    if not raw_events:
+        return None
+
+    # Find the specific nested market within the returned events
+    for raw_event in raw_events:
+        for raw_market in raw_event.get("markets", []):
+            if str(raw_market.get("id", "")) == str(market_id):
+                return _normalize_event(raw_event, raw_market)
+
+    return None
