@@ -21,6 +21,7 @@ export interface Market {
   market_id: string;
   question: string;
   category: string;
+  event_title: string | null;
   yes_price: number;
   no_price: number;
   volume: number;

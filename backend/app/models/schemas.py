@@ -7,6 +7,7 @@ class Market(BaseModel):
     market_id: str
     question: str
     category: str
+    event_title: Optional[str] = None
     yes_price: float = Field(ge=0, le=1)
     no_price: float = Field(ge=0, le=1)
     volume: float = Field(ge=0)

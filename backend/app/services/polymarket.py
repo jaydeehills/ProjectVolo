@@ -16,6 +16,61 @@ MIN_DAYS_TO_CLOSE = 7        # Must close > 7 days from now
 CACHE_TTL_SECONDS = 60       # Cache results for 60s
 FETCH_LIMIT = 100            # Max per page from Gamma API
 
+# --- Category inference from event ticker ---
+# The /events endpoint carries no category field; we derive one from the
+# URL-safe ticker slug using keyword matching. Order matters — first match wins.
+_TICKER_CATEGORIES: List[Tuple[List[str], str]] = [
+    (
+        ["nba", "nfl", "nhl", "mlb", "nascar", "soccer", "football",
+         "cricket", "rugby", "tennis", "golf", "ufc", "boxing",
+         "esports", "playoff", "championship", "tournament", "league",
+         "sports", "olympic"],
+        "Sports",
+    ),
+    (
+        ["bitcoin", "btc", "ethereum", "eth", "crypto", "defi",
+         "nft", "solana", "sol", "doge", "xrp", "coinbase"],
+        "Crypto",
+    ),
+    (
+        ["president", "election", "senate", "congress", "democrat",
+         "republican", "gop", "vote", "ballot", "nominee", "political",
+         "trump", "biden", "harris", "primary", "inaugurate"],
+        "Politics",
+    ),
+    (
+        ["fed", "gdp", "inflation", "interest-rate", "recession",
+         "unemployment", "economy", "economic", "stock", "nasdaq",
+         "dow", "sp500", "market-cap", "rate-cut", "rate-hike"],
+        "Economics",
+    ),
+    (
+        ["oscar", "emmy", "grammy", "award", "movie", "film", "box-office",
+         "music", "album", "celebrity", "entertainment", "tv", "streaming"],
+        "Entertainment",
+    ),
+    (
+        ["weather", "temperature", "hurricane", "earthquake", "flood",
+         "wildfire", "climate", "disaster"],
+        "Weather",
+    ),
+    (
+        ["spacex", "nasa", "launch", "rocket", "satellite", "iss",
+         "moon", "mars", "asteroid"],
+        "Science",
+    ),
+]
+
+
+def _category_from_ticker(ticker: str) -> str:
+    """Infer a display category from a Gamma API event ticker/slug."""
+    t = ticker.lower()
+    for keywords, label in _TICKER_CATEGORIES:
+        if any(k in t for k in keywords):
+            return label
+    return "Other"
+
+
 # --- In-memory cache ---
 _cache: Optional[Tuple[float, List[Market]]] = None
 
@@ -102,7 +157,8 @@ def _normalize_event(raw_event: dict, raw_market: dict) -> Optional[Market]:
     return Market(
         market_id=str(raw_market.get("id", "")),  # market-level ID for per-market caching
         question=raw_market.get("question", raw_event.get("title", "")),
-        category=raw_event.get("category", "Unknown"),
+        category=_category_from_ticker(raw_event.get("ticker", "")),
+        event_title=raw_event.get("title", ""),
         yes_price=round(yes_price, 4),
         no_price=round(no_price, 4),
         volume=round(volume, 2),
