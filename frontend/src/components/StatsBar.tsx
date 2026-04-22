@@ -51,10 +51,10 @@ export default function StatsBar({
       <StatCard
         label="Markets Tracked"
         value={markets.length.toString()}
-        sub={`vol > $10k, closes > 7d`}
+        sub={`vol > $100k, closes > 7d`}
       />
       <StatCard
-        label="Active Signals"
+        label="Research Alerts"
         value={activeSignals.length.toString()}
         sub={`${buyYes} buy yes / ${buyNo} buy no`}
       />
@@ -64,7 +64,7 @@ export default function StatsBar({
         sub={avgEdge > 0.1 ? "strong" : avgEdge > 0.05 ? "moderate" : "thin"}
       />
       <StatCard
-        label="Last Scan"
+        label="Last Refresh"
         value={
           lastUpdated
             ? lastUpdated.toLocaleTimeString([], {
@@ -74,7 +74,7 @@ export default function StatsBar({
               })
             : "--:--"
         }
-        sub="polls every 30s"
+        sub="updates every 30s"
       />
     </div>
   );

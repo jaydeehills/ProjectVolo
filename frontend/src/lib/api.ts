@@ -10,7 +10,7 @@ async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T> {
   });
   if (!res.ok) {
     if (res.status === 503) {
-      throw new Error("Agent paused (AGENT_ENABLED=false)");
+      throw new Error("Backend unavailable (service not ready)");
     }
     throw new Error(`API error: ${res.status} ${res.statusText}`);
   }
@@ -41,6 +41,7 @@ export interface EdgeResult {
   signal: string;
   expected_value: number;
   reasoning: string;
+  key_factors: string[];
   estimated_at: string;
 }
 
@@ -50,6 +51,15 @@ export interface AgentLogEntry {
   module: string;
   message: string;
   details: Record<string, unknown> | null;
+}
+
+export interface EstimateResult {
+  market_id: string;
+  question: string;
+  estimated_probability: number;
+  confidence: "low" | "medium" | "high";
+  reasoning: string;
+  key_factors: string[];
 }
 
 export const api = {
@@ -63,4 +73,16 @@ export const api = {
 
   getLogs: (limit = 100) =>
     fetchAPI<{ logs: AgentLogEntry[] }>(`/logs/?limit=${limit}`),
+
+  estimate: (body: {
+    market_id: string;
+    question: string;
+    category: string;
+    context: string;
+    force_refresh?: boolean;
+  }) =>
+    fetchAPI<EstimateResult>("/estimator/estimate", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
 };

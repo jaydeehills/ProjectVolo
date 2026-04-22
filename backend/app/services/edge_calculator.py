@@ -45,5 +45,6 @@ def calculate_edge(market: Market, estimate: ProbabilityEstimate) -> EdgeResult:
         signal=signal,
         expected_value=round(expected_value, 4),
         reasoning=estimate.reasoning,
+        key_factors=estimate.key_factors,
         estimated_at=datetime.now(timezone.utc).isoformat(),
     )

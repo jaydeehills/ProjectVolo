@@ -26,7 +26,7 @@ export default function AgentLog({ logs, loading }: AgentLogProps) {
     <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg flex flex-col h-full">
       {/* Header */}
       <div className="px-3 py-3 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Agent Log</h2>
+        <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Activity Log</h2>
         <div className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
           <span className="text-[11px] text-zinc-400 dark:text-zinc-500">
@@ -41,7 +41,7 @@ export default function AgentLog({ logs, loading }: AgentLogProps) {
           <p className="text-zinc-400 dark:text-zinc-700 p-2 animate-pulse">Connecting...</p>
         ) : logs.length === 0 ? (
           <p className="text-zinc-400 dark:text-zinc-700 p-2">
-            Waiting for agent activity...
+            Waiting for activity...
           </p>
         ) : (
           logs.map((entry, i) => {

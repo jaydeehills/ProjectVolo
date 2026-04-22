@@ -14,8 +14,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Project Volo",
-  description: "AI-powered market research and signal generation",
+  title: "Volo — Prediction Market Research",
+  description: "Prediction market research and analysis",
 };
 
 // Injected before React hydrates to prevent flash of wrong theme.

@@ -36,6 +36,7 @@ class EdgeResult(BaseModel):
     signal: Literal["BUY_YES", "BUY_NO", "HOLD"]
     expected_value: float = Field(ge=0)
     reasoning: str
+    key_factors: List[str] = Field(default_factory=list)
     estimated_at: str
 
 
@@ -63,3 +64,4 @@ class EstimateRequest(BaseModel):
     question: str = Field(min_length=1, max_length=1000)
     category: str = Field(default="", max_length=200)
     context: str = Field(default="", max_length=5000)
+    force_refresh: bool = Field(default=False, description="Bypass cache and force a fresh estimate")

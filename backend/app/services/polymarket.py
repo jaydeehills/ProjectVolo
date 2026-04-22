@@ -103,12 +103,28 @@ def _normalize_event(raw_event: dict, raw_market: dict) -> Optional[Market]:
 
     Returns None if the market doesn't meet our filters.
     """
-    # --- Parse close date from event and apply minimum-days filter ---
+    # --- Event-level status filters ---
+    if raw_event.get("closed") is True:
+        return None
+    if raw_event.get("archived") is True:
+        return None
+
+    # --- Market-level status filters ---
+    if raw_market.get("closed") is True:
+        return None
+    if raw_market.get("archived") is True:
+        return None
+
+    # --- endDate filters (event and market level) ---
+    now = datetime.now(timezone.utc)
     close_date = _parse_datetime(raw_event.get("endDate"))
     if close_date is None:
         return None
-    now = datetime.now(timezone.utc)
     if close_date <= now + timedelta(days=MIN_DAYS_TO_CLOSE):
+        return None
+    # Market-level endDate may differ from event's; apply same gate if present
+    market_end = _parse_datetime(raw_market.get("endDate"))
+    if market_end is not None and market_end <= now:
         return None
 
     # --- Volume filter at event level ---

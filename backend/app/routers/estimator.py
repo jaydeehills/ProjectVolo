@@ -22,6 +22,7 @@ async def create_estimate(req: EstimateRequest):
             question=req.question,
             context=req.context,
             category=req.category,
+            force_refresh=req.force_refresh,
         )
     except RuntimeError as exc:
         log("error", "estimator", f"Estimation failed: {exc}")
