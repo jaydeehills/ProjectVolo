@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 GAMMA_API_URL = "https://gamma-api.polymarket.com/events"
 POLYMARKET_BASE_URL = "https://polymarket.com/event"
 
-MIN_VOLUME = 100_000         # $100k minimum volume (applied at event level)
+MIN_VOLUME = 500_000         # $500k minimum volume (applied at event level)
 MIN_DAYS_TO_CLOSE = 7        # Must close > 7 days from now
 CACHE_TTL_SECONDS = 60       # Cache results for 60s
 FETCH_LIMIT = 100            # Max per page from Gamma API

@@ -49,22 +49,28 @@ export default function AgentLog({ logs, loading }: AgentLogProps) {
             return (
               <div
                 key={i}
-                className={`flex gap-1.5 px-2 py-1 rounded ${style.bg}`}
+                className={`flex flex-col px-2 py-1.5 rounded ${style.bg}`}
               >
-                <span className="text-zinc-400 dark:text-zinc-600 shrink-0 w-[60px]">
-                  {new Date(entry.timestamp).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    second: "2-digit",
-                  })}
-                </span>
-                <span className={`shrink-0 w-[52px] uppercase ${style.color}`}>
-                  {entry.level}
-                </span>
-                <span className="text-zinc-400 dark:text-zinc-500 shrink-0 w-[56px] truncate">
-                  {entry.module}
-                </span>
-                <span className="text-zinc-700 dark:text-zinc-300 break-words min-w-0">
+                {/* Row 1: badge + timestamp */}
+                <div className="flex items-center gap-1.5">
+                  <span className={`uppercase font-semibold ${style.color}`}>
+                    {entry.level}
+                  </span>
+                  <span className="text-zinc-400 dark:text-zinc-500">·</span>
+                  <span className="text-zinc-400 dark:text-zinc-600">
+                    {new Date(entry.timestamp).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                    })}
+                  </span>
+                  <span className="text-zinc-400 dark:text-zinc-500">·</span>
+                  <span className="text-zinc-400 dark:text-zinc-500 truncate">
+                    {entry.module}
+                  </span>
+                </div>
+                {/* Row 2: message full width */}
+                <span className="text-zinc-700 dark:text-zinc-300 break-words leading-snug">
                   {entry.message}
                 </span>
               </div>

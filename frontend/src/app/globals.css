@@ -4,19 +4,48 @@
 
 /* ── Theme tokens ─────────────────────────────────────────── */
 :root {
-  --background: #fafafa;
-  --foreground: #18181b;
+  --background:   oklch(0.97 0.02 70);
+  --foreground:   oklch(0.20 0.02 70);
+  --primary:      oklch(0.70 0.14 45);
+  --card:         oklch(0.94 0.02 70);
+  --border:       oklch(0.88 0.02 70);
+  --muted:        oklch(0.50 0.02 70);
 }
 
 .dark {
-  --background: #09090b;
-  --foreground: #fafafa;
+  --background:   oklch(0.15 0.02 70);
+  --foreground:   oklch(0.93 0.02 70);
+  --primary:      oklch(0.70 0.14 45);
+  --card:         oklch(0.20 0.02 70);
+  --border:       oklch(0.28 0.02 70);
+  --muted:        oklch(0.60 0.02 70);
+}
+
+/* ── Typography ───────────────────────────────────────────── */
+:root {
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text",
+               "Helvetica Neue", Arial, sans-serif;
+  --font-size-base: 17px;
+  --line-height-base: 1.6;
+  --tracking-tight: -0.025em;
+  --tracking-tighter: -0.04em;
 }
 
 /* ── Base styles ──────────────────────────────────────────── */
 body {
   color: var(--foreground);
   background: var(--background);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  font-feature-settings: "kern" 1, "liga" 1, "tnum" 1;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: var(--tracking-tight);
+  line-height: 1.15;
+  font-weight: 600;
 }
 
 /* ── Smooth theme transitions ─────────────────────────────── */

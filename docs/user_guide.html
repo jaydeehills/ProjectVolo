@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProjectVolo — User Guide</title>
+  <style>
+    :root {
+      --bg: #0a0c10;
+      --surface: #111318;
+      --surface2: #181c23;
+      --border: #1e2330;
+      --border2: #252b38;
+      --text: #e2e8f0;
+      --text-muted: #6b7a99;
+      --text-dim: #8892a8;
+      --accent: #3b82f6;
+      --accent-glow: rgba(59,130,246,0.15);
+      --green: #22c55e;
+      --green-bg: rgba(34,197,94,0.1);
+      --red: #ef4444;
+      --red-bg: rgba(239,68,68,0.1);
+      --yellow: #f59e0b;
+      --yellow-bg: rgba(245,158,11,0.1);
+      --purple: #a78bfa;
+      --purple-bg: rgba(167,139,250,0.1);
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 10px;
+      --radius-sm: 6px;
+      --sidebar-w: 260px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    /* ── Layout ── */
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 28px 0;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border2) transparent;
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 20px 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+
+    .sidebar-logo-icon {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, var(--accent), #6366f1);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo-text {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--text);
+    }
+
+    .sidebar-logo-sub {
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .toc-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 0 20px;
+      margin-bottom: 8px;
+    }
+
+    .toc-item {
+      display: block;
+      padding: 6px 20px;
+      font-size: 13px;
+      color: var(--text-dim);
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      transition: all 0.15s;
+      line-height: 1.4;
+    }
+
+    .toc-item:hover {
+      color: var(--text);
+      background: var(--surface2);
+      border-left-color: var(--accent);
+    }
+
+    .toc-item.active {
+      color: var(--accent);
+      background: var(--accent-glow);
+      border-left-color: var(--accent);
+    }
+
+    .toc-num {
+      color: var(--text-muted);
+      font-size: 11px;
+      margin-right: 4px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ── Main ── */
+    .main {
+      flex: 1;
+      max-width: 860px;
+      padding: 60px 56px;
+      overflow-x: hidden;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      margin-bottom: 64px;
+      padding-bottom: 48px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-glow);
+      border: 1px solid rgba(59,130,246,0.3);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-size: 42px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .hero-sub {
+      font-size: 17px;
+      color: var(--text-dim);
+      max-width: 540px;
+      line-height: 1.6;
+    }
+
+    .hero-callout {
+      margin-top: 24px;
+      background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(99,102,241,0.06));
+      border: 1px solid rgba(59,130,246,0.2);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      font-size: 14px;
+      color: var(--text-dim);
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .hero-callout .icon { flex-shrink: 0; font-size: 16px; }
+
+    /* ── Sections ── */
+    .section {
+      margin-bottom: 72px;
+      scroll-margin-top: 32px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .section-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .section h2 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .section h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 24px 0 8px;
+    }
+
+    .section p {
+      color: var(--text-dim);
+      margin-bottom: 14px;
+    }
+
+    .section ul, .section ol {
+      color: var(--text-dim);
+      padding-left: 20px;
+      margin-bottom: 14px;
+    }
+
+    .section li { margin-bottom: 6px; }
+
+    em { color: var(--text); font-style: italic; }
+
+    strong { color: var(--text); font-weight: 600; }
+
+    /* ── Cards ── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+
+    .card-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .card-value {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .card-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ── Stats bar visual ── */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin: 20px 0;
+    }
+
+    .stat-cell {
+      background: var(--surface);
+      padding: 16px 18px;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat-value.green { color: var(--green); }
+    .stat-value.blue { color: var(--accent); }
+
+    .stat-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* ── Signal badges ── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .badge.buy-yes {
+      background: var(--green-bg);
+      color: var(--green);
+      border: 1px solid rgba(34,197,94,0.25);
+    }
+
+    .badge.buy-no {
+      background: var(--red-bg);
+      color: var(--red);
+      border: 1px solid rgba(239,68,68,0.25);
+    }
+
+    .badge.hold {
+      background: var(--surface2);
+      color: var(--text-muted);
+      border: 1px solid var(--border2);
+    }
+
+    .badge.info {
+      background: rgba(59,130,246,0.1);
+      color: var(--accent);
+      border: 1px solid rgba(59,130,246,0.2);
+    }
+
+    .badge.analysis {
+      background: var(--purple-bg);
+      color: var(--purple);
+      border: 1px solid rgba(167,139,250,0.2);
+    }
+
+    .badge.signal {
+      background: var(--green-bg);
+      color: var(--green);
+      border: 1px solid rgba(34,197,94,0.2);
+    }
+
+    .badge.error {
+      background: var(--red-bg);
+      color: var(--red);
+      border: 1px solid rgba(239,68,68,0.2);
+    }
+
+    /* ── Example scenario box ── */
+    .scenario {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      margin: 20px 0;
+    }
+
+    .scenario-title {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    .scenario-q {
+      font-size: 15px;
+      color: var(--text);
+      font-style: italic;
+      margin-bottom: 18px;
+      padding-left: 12px;
+      border-left: 2px solid var(--border2);
+    }
+
+    .outcome-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .outcome {
+      flex: 1;
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      border: 1px solid;
+    }
+
+    .outcome.win {
+      background: var(--green-bg);
+      border-color: rgba(34,197,94,0.25);
+    }
+
+    .outcome.loss {
+      background: var(--red-bg);
+      border-color: rgba(239,68,68,0.25);
+    }
+
+    .outcome-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .outcome.win .outcome-label { color: var(--green); }
+    .outcome.loss .outcome-label { color: var(--red); }
+
+    .outcome-text {
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    .outcome-highlight {
+      font-size: 15px;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+
+    .outcome.win .outcome-highlight { color: var(--green); }
+    .outcome.loss .outcome-highlight { color: var(--red); }
+
+    /* ── Price bar visual ── */
+    .price-compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .price-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      text-align: center;
+    }
+
+    .price-card-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .price-card-value {
+      font-size: 28px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .price-card.market .price-card-value { color: var(--text); }
+    .price-card.ai .price-card-value { color: var(--accent); }
+    .price-card.edge-pos .price-card-value { color: var(--green); }
+    .price-card.edge-neg .price-card-value { color: var(--red); }
+
+    .prob-bar {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+
+    .prob-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--accent);
+    }
+
+    /* ── EV formula ── */
+    .formula-box {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 18px 22px;
+      margin: 16px 0;
+      font-family: var(--font-mono);
+      font-size: 15px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .formula-box .var { color: var(--accent); }
+    .formula-box .op { color: var(--text-muted); }
+
+    /* ── Confidence meter ── */
+    .confidence-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .confidence-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .confidence-dots {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .dot.filled.high { background: var(--green); }
+    .dot.filled.med { background: var(--yellow); }
+    .dot.filled.low { background: var(--red); }
+    .dot.empty { background: var(--border2); }
+
+    .confidence-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .confidence-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* ── Pipeline steps ── */
+    .pipeline {
+      margin: 20px 0;
+      position: relative;
+    }
+
+    .pipeline-step {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+      align-items: flex-start;
+    }
+
+    .step-connector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .step-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 2px solid var(--border2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .step-line {
+      width: 2px;
+      flex: 1;
+      min-height: 20px;
+      background: var(--border);
+      margin: 4px 0;
+    }
+
+    .pipeline-step:last-child .step-line { display: none; }
+
+    .step-content {
+      flex: 1;
+      padding-top: 4px;
+      padding-bottom: 12px;
+    }
+
+    .step-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .step-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .step-badge {
+      display: inline-block;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 4px;
+      padding: 1px 7px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      margin-left: 6px;
+    }
+
+    /* ── Workflow steps (how to bet) ── */
+    .workflow {
+      display: grid;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .workflow-step {
+      display: flex;
+      gap: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      align-items: flex-start;
+    }
+
+    .workflow-step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: var(--accent-glow);
+      border: 1px solid rgba(59,130,246,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .workflow-step-text {
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    .workflow-step-text strong { color: var(--text); }
+
+    /* ── Activity log visual ── */
+    .log-feed {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin: 16px 0;
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    .log-entry {
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .log-entry:last-child { border-bottom: none; }
+
+    .log-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 3px;
+    }
+
+    .log-time { color: var(--text-muted); }
+    .log-module {
+      color: var(--text-muted);
+      font-size: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 3px;
+      padding: 0 5px;
+    }
+
+    .log-msg { color: var(--text-dim); }
+    .log-msg strong { color: var(--text); }
+
+    /* ── Warning / risk box ── */
+    .warning-box {
+      background: rgba(245,158,11,0.07);
+      border: 1px solid rgba(245,158,11,0.2);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin: 16px 0;
+    }
+
+    .warning-box-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--yellow);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .risk-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .risk-list li {
+      display: flex;
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(245,158,11,0.1);
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    .risk-list li:last-child { border-bottom: none; }
+
+    .risk-list li::before {
+      content: "⚠";
+      color: var(--yellow);
+      flex-shrink: 0;
+    }
+
+    /* ── Glossary ── */
+    .glossary-grid {
+      display: grid;
+      gap: 8px;
+      margin: 16px 0;
+    }
+
+    .gloss-item {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 12px;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+
+    .gloss-term {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      font-family: var(--font-mono);
+      padding-top: 1px;
+    }
+
+    .gloss-def {
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    /* ── Signal table ── */
+    .signal-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 13px;
+    }
+
+    .signal-table thead tr {
+      border-bottom: 1px solid var(--border2);
+    }
+
+    .signal-table th {
+      text-align: left;
+      padding: 8px 12px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .signal-table td {
+      padding: 10px 12px;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .signal-table tr:last-child td { border-bottom: none; }
+
+    .signal-table tr:hover td { background: var(--surface); }
+
+    /* ── Edge distribution visual ── */
+    .chart-mock {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin: 16px 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chart-axis {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      border-top: 1px solid var(--border2);
+      padding-top: 8px;
+      margin-top: 20px;
+    }
+
+    .chart-dots {
+      height: 100px;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .cdot {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .threshold-line {
+      position: absolute;
+      width: 1px;
+      top: 0;
+      bottom: 0;
+      background: var(--border2);
+      border-left: 1px dashed var(--text-muted);
+    }
+
+    .chart-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    /* ── Info callout ── */
+    .info-callout {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 14px 16px;
+      margin: 16px 0;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    .info-callout strong { color: var(--text); }
+
+    /* ── Disclaimer ── */
+    .disclaimer {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 60px;
+      line-height: 1.6;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 40px 0;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .main { padding: 40px 28px; max-width: 100%; }
+      .stats-bar { grid-template-columns: repeat(2, 1fr); }
+      .confidence-grid { grid-template-columns: 1fr; }
+      .price-compare { grid-template-columns: 1fr; }
+      .gloss-item { grid-template-columns: 1fr; gap: 2px; }
+      .outcome-row { flex-direction: column; }
+      .hero h1 { font-size: 30px; }
+    }
+
+    @media (max-width: 600px) {
+      .stats-bar { grid-template-columns: 1fr 1fr; }
+      .card-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">📡</div>
+      <div>
+        <div class="sidebar-logo-text">ProjectVolo</div>
+        <div class="sidebar-logo-sub">User Guide</div>
+      </div>
+    </div>
+    <div class="toc-label">Contents</div>
+    <a class="toc-item" href="#s1"><span class="toc-num">01</span> What is a Prediction Market?</a>
+    <a class="toc-item" href="#s2"><span class="toc-num">02</span> What is ProjectVolo?</a>
+    <a class="toc-item" href="#s3"><span class="toc-num">03</span> The Stats Bar</a>
+    <a class="toc-item" href="#s4"><span class="toc-num">04</span> Research Alerts</a>
+    <a class="toc-item" href="#s5"><span class="toc-num">05</span> What is Edge?</a>
+    <a class="toc-item" href="#s6"><span class="toc-num">06</span> Expected Value (EV)</a>
+    <a class="toc-item" href="#s7"><span class="toc-num">07</span> What is Confidence?</a>
+    <a class="toc-item" href="#s8"><span class="toc-num">08</span> Edge Distribution Chart</a>
+    <a class="toc-item" href="#s9"><span class="toc-num">09</span> The Markets Tab</a>
+    <a class="toc-item" href="#s10"><span class="toc-num">10</span> The Activity Log</a>
+    <a class="toc-item" href="#s11"><span class="toc-num">11</span> The Full Pipeline</a>
+    <a class="toc-item" href="#s12"><span class="toc-num">12</span> How to Place a Bet</a>
+    <a class="toc-item" href="#s13"><span class="toc-num">13</span> What the AI Actually Does</a>
+    <a class="toc-item" href="#s14"><span class="toc-num">14</span> Limitations &amp; Risks</a>
+    <a class="toc-item" href="#s15"><span class="toc-num">15</span> Glossary</a>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main class="main">
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-badge">📡 Research Tool</div>
+      <h1>ProjectVolo<br>User Guide</h1>
+      <p class="hero-sub">A plain-English guide to reading prediction markets, understanding edge, and using the dashboard — no prior experience needed.</p>
+      <div class="hero-callout">
+        <span class="icon">💡</span>
+        <span>This guide assumes you know nothing about prediction markets or trading. If you've never heard the word "liquidity" and don't care, great — we'll build up from zero.</span>
+      </div>
+    </div>
+
+    <!-- 1 -->
+    <section class="section" id="s1">
+      <div class="section-header">
+        <div class="section-num">01</div>
+        <h2>What is a Prediction Market?</h2>
+      </div>
+
+      <p>A prediction market is a place where people bet real money on whether something will happen — not sports betting exactly, but more like a stock market for future events.</p>
+
+      <p>Questions might be: <em>"Will the Fed cut interest rates before December?"</em> or <em>"Will SpaceX land on Mars by 2027?"</em> If you think YES, you buy a YES share. When the event resolves, whoever was right gets paid.</p>
+
+      <h3>What does the price mean?</h3>
+      <p>The price of a YES share is the market's collective estimate of the probability that the event happens.</p>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-label">YES Price</div>
+          <div class="card-value">$0.45</div>
+          <div class="card-desc">≈ 45% chance of YES</div>
+        </div>
+        <div class="card">
+          <div class="card-label">YES Price</div>
+          <div class="card-value">$0.90</div>
+          <div class="card-desc">≈ 90% chance of YES</div>
+        </div>
+        <div class="card">
+          <div class="card-label">YES Price</div>
+          <div class="card-value">$0.08</div>
+          <div class="card-desc">≈ 8% chance of YES</div>
+        </div>
+      </div>
+
+      <div class="info-callout">
+        The YES price and NO price always add up to approximately <strong>$1.00</strong>. If YES is $0.45, NO is about $0.55.
+      </div>
+
+      <h3>How do you make money?</h3>
+
+      <div class="scenario">
+        <div class="scenario-title">Example Scenario</div>
+        <div class="scenario-q">"Will the Chicago Bulls win the NBA Championship this season?"</div>
+        <p style="font-size:13px; color:var(--text-dim);">Current YES price: <strong>$0.12</strong> (market says 12% chance). You think they're actually a 30% chance. You buy <strong>100 YES shares</strong> at $0.12 each → you spend <strong>$12.00</strong>.</p>
+        <div class="outcome-row">
+          <div class="outcome win">
+            <div class="outcome-label">✓ Bulls Win (YES resolves)</div>
+            <div class="outcome-text">100 shares × $1.00 = $100.00 received</div>
+            <div class="outcome-highlight">+$88 profit on a $12 bet</div>
+          </div>
+          <div class="outcome loss">
+            <div class="outcome-label">✗ Bulls Lose (NO resolves)</div>
+            <div class="outcome-text">YES shares worth $0</div>
+            <div class="outcome-highlight">−$12.00 lost</div>
+          </div>
+        </div>
+      </div>
+
+      <p>The key insight: you don't need to be right <em>most of the time</em> — you need to be right <em>more often than the price implies</em>. If the market says 12% and you correctly identify it should be 30%, you have profitable edge even though you'll lose that bet 70% of the time.</p>
+
+      <h3>What is Polymarket?</h3>
+      <p><strong>Polymarket</strong> is the largest prediction market platform, running on the Polygon blockchain. It hosts hundreds of markets on politics, economics, sports, crypto, science, and more. All prices are in USDC — a stablecoin pegged to the US dollar. ProjectVolo reads data directly from Polymarket's public API.</p>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 2 -->
+    <section class="section" id="s2">
+      <div class="section-header">
+        <div class="section-num">02</div>
+        <h2>What is ProjectVolo?</h2>
+      </div>
+
+      <p>ProjectVolo is a research tool that automatically scans Polymarket for potential mispricings. Polymarket has hundreds of active markets — manually reading each one, forming a probability estimate, and comparing it to the current price would take hours every day.</p>
+
+      <div class="workflow">
+        <div class="workflow-step">
+          <div class="workflow-step-num">1</div>
+          <div class="workflow-step-text"><strong>Fetch</strong> all active, high-volume markets from Polymarket every 60 seconds</div>
+        </div>
+        <div class="workflow-step">
+          <div class="workflow-step-num">2</div>
+          <div class="workflow-step-text"><strong>Run</strong> each question through Claude Haiku to estimate the true probability</div>
+        </div>
+        <div class="workflow-step">
+          <div class="workflow-step-num">3</div>
+          <div class="workflow-step-text"><strong>Compare</strong> the AI estimate to the current market price to calculate the edge</div>
+        </div>
+        <div class="workflow-step">
+          <div class="workflow-step-num">4</div>
+          <div class="workflow-step-text"><strong>Surface</strong> only the markets where the gap is large enough to be potentially interesting</div>
+        </div>
+      </div>
+
+      <div class="info-callout">
+        <strong>ProjectVolo does not place bets. It does not manage money.</strong> It finds candidates for your own manual review.
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 3 -->
+    <section class="section" id="s3">
+      <div class="section-header">
+        <div class="section-num">03</div>
+        <h2>The Stats Bar</h2>
+      </div>
+
+      <p>The four cards at the top of the dashboard give you a quick health check of what the tool is seeing right now.</p>
+
+      <div class="stats-bar">
+        <div class="stat-cell">
+          <div class="stat-label">Markets Tracked</div>
+          <div class="stat-value blue">247</div>
+          <div class="stat-sub">Passing volume &amp; date filters</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Research Alerts</div>
+          <div class="stat-value green">18</div>
+          <div class="stat-sub">Meaningful gaps found</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Avg Edge</div>
+          <div class="stat-value green">15.3%</div>
+          <div class="stat-sub">Across all alerts</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Last Refresh</div>
+          <div class="stat-value" style="font-size:16px; padding-top:4px;">2m ago</div>
+          <div class="stat-sub">Full scan every 5 min</div>
+        </div>
+      </div>
+
+      <p>The dashboard polls for new data every <strong>30 seconds</strong>. AI estimates are cached for <strong>24 hours</strong> (the AI's knowledge doesn't change minute-to-minute). The full scan re-runs every <strong>5 minutes</strong>.</p>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 4 -->
+    <section class="section" id="s4">
+      <div class="section-header">
+        <div class="section-num">04</div>
+        <h2>Research Alerts — The Signal Board</h2>
+      </div>
+
+      <p>This is the heart of ProjectVolo. Each row is a market where the AI has found a potentially meaningful discrepancy with the current price.</p>
+
+      <h3>The three signals</h3>
+
+      <table class="signal-table">
+        <thead>
+          <tr>
+            <th>Signal</th>
+            <th>Meaning</th>
+            <th>Threshold</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge buy-yes">● BUY YES</span></td>
+            <td>AI thinks YES is more likely than market price implies</td>
+            <td>Edge &gt; +8%</td>
+          </tr>
+          <tr>
+            <td><span class="badge buy-no">● BUY NO</span></td>
+            <td>AI thinks NO is more likely — YES is overpriced</td>
+            <td>Edge &lt; −8%</td>
+          </tr>
+          <tr>
+            <td><span class="badge hold">HOLD</span></td>
+            <td>Gap too small, or confidence too low</td>
+            <td>|Edge| &lt; 8%</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Example alert</h3>
+
+      <div class="scenario">
+        <div class="scenario-title">Research Alert — Inflation Market</div>
+        <div class="scenario-q">"Will inflation fall below 3% by end of year?"</div>
+        <div class="price-compare">
+          <div class="price-card market">
+            <div class="price-card-label">Market Price</div>
+            <div class="price-card-value">40%</div>
+            <div class="prob-bar"><div class="prob-bar-fill" style="width:40%; background:var(--text-muted);"></div></div>
+          </div>
+          <div class="price-card ai">
+            <div class="price-card-label">AI Estimate</div>
+            <div class="price-card-value">65%</div>
+            <div class="prob-bar"><div class="prob-bar-fill" style="width:65%;"></div></div>
+          </div>
+          <div class="price-card edge-pos">
+            <div class="price-card-label">Edge</div>
+            <div class="price-card-value">+25%</div>
+            <div style="margin-top:10px;"><span class="badge buy-yes">BUY YES</span></div>
+          </div>
+        </div>
+        <p style="font-size:12px; color:var(--text-muted); margin-top:10px; font-style:italic;">"Historical base rate for this type of disinflation is 60–70%. Recent CPI data shows a consistent downward trend. The Fed has signaled it expects inflation to continue falling. Adjusting for model overconfidence, estimate is 65%."</p>
+      </div>
+
+      <h3>Expanding a row</h3>
+      <p>Click any row to see the full research report: probability comparison cards, confidence meter, step-by-step AI reasoning, key factors list, and a <strong>Re-analyze</strong> button to bypass the 24-hour cache.</p>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 5 -->
+    <section class="section" id="s5">
+      <div class="section-header">
+        <div class="section-num">05</div>
+        <h2>What is Edge?</h2>
+      </div>
+
+      <p>Edge is the core concept in prediction market investing. It's the difference between what you think the true probability is and what the market is currently pricing.</p>
+
+      <div class="formula-box">
+        <span class="var">Edge</span>
+        <span class="op">=</span>
+        <span class="var">AI Estimate</span>
+        <span class="op">−</span>
+        <span class="var">Market Price</span>
+      </div>
+
+      <h3>Why does edge matter?</h3>
+      <p>In a perfectly efficient market, prices would always be correct. But markets are set by humans with limited time, incomplete information, and cognitive biases. When you find genuine edge — analytical insight the market hasn't fully priced in — you have a mathematical advantage. Think of it like poker: a professional doesn't win every hand, but by consistently getting money in with better odds, they profit over time.</p>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-label">Positive Edge → BUY YES</div>
+          <div style="margin: 10px 0 4px; font-size:13px; color:var(--text-dim);">Market: 40% → AI: 65%</div>
+          <div class="card-value" style="color:var(--green);">+25%</div>
+          <div class="card-desc">YES may be underpriced</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Negative Edge → BUY NO</div>
+          <div style="margin: 10px 0 4px; font-size:13px; color:var(--text-dim);">Market: 70% → AI: 45%</div>
+          <div class="card-value" style="color:var(--red);">−25%</div>
+          <div class="card-desc">NO may be underpriced</div>
+        </div>
+      </div>
+
+      <div class="info-callout">
+        ProjectVolo requires a minimum <strong>8% edge</strong> before generating a Research Alert. Below that threshold, the signal is likely just noise from the AI's own imprecision or transaction costs.
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 6 -->
+    <section class="section" id="s6">
+      <div class="section-header">
+        <div class="section-num">06</div>
+        <h2>What is Expected Value (EV)?</h2>
+      </div>
+
+      <p>Expected Value is a mathematical concept that tells you how much you'd expect to win (or lose) on average if you made the same bet many times. In ProjectVolo, EV is calculated as:</p>
+
+      <div class="formula-box">
+        <span class="var">EV</span>
+        <span class="op">=</span>
+        <span>|</span><span class="var">Edge</span><span>|</span>
+        <span class="op">×</span>
+        <span class="var">Confidence Weight</span>
+      </div>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-label">High Confidence</div>
+          <div class="card-value" style="color:var(--green);">0.85×</div>
+          <div class="card-desc">Strongest weight</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Medium Confidence</div>
+          <div class="card-value" style="color:var(--yellow);">0.60×</div>
+          <div class="card-desc">Moderate weight</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Low Confidence</div>
+          <div class="card-value" style="color:var(--red);">0.15×</div>
+          <div class="card-desc">Auto-filtered to HOLD</div>
+        </div>
+      </div>
+
+      <p>A large edge with low confidence scores lower than a moderate edge with high confidence — which is the right behaviour. Research Alerts are sorted by EV from highest to lowest. Think of EV as a quality score, not a guarantee of profit.</p>
+
+      <h3>Plain English example</h3>
+      <div class="scenario">
+        <div class="scenario-title">Biased Coin Flip</div>
+        <p style="font-size:13px; color:var(--text-dim);">You believe a coin lands heads 60% of the time. The market prices it at 50%. Your edge is 10%.</p>
+        <div class="outcome-row" style="margin-top:14px;">
+          <div class="outcome win">
+            <div class="outcome-label">60% of the time</div>
+            <div class="outcome-text">Win $1 → expected gain = $0.60</div>
+          </div>
+          <div class="outcome loss">
+            <div class="outcome-label">40% of the time</div>
+            <div class="outcome-text">Lose $1 → expected loss = $0.40</div>
+          </div>
+        </div>
+        <div style="margin-top:14px; padding:12px 14px; background:var(--surface2); border-radius:var(--radius-sm); font-size:13px; color:var(--text-dim);">
+          Expected value per $1 bet: <strong style="color:var(--green);">+$0.20</strong>. Over 100 bets you'd expect to make ~$20, even though you lose 40 individual bets.
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 7 -->
+    <section class="section" id="s7">
+      <div class="section-header">
+        <div class="section-num">07</div>
+        <h2>What is Confidence?</h2>
+      </div>
+
+      <p>Confidence tells you how certain the AI is in its probability estimate. It's the quality filter on the edge signal — a 30% edge from low confidence might be meaningless noise.</p>
+
+      <div class="confidence-grid">
+        <div class="confidence-card">
+          <div class="confidence-dots">
+            <div class="dot filled high"></div>
+            <div class="dot filled high"></div>
+            <div class="dot filled high"></div>
+          </div>
+          <div class="confidence-name">High</div>
+          <div class="confidence-desc">Solid base rate, good public data, unambiguous resolution criteria. E.g. Fed rate decisions, major elections, well-known sports.</div>
+        </div>
+        <div class="confidence-card">
+          <div class="confidence-dots">
+            <div class="dot filled med"></div>
+            <div class="dot filled med"></div>
+            <div class="dot empty"></div>
+          </div>
+          <div class="confidence-name">Medium</div>
+          <div class="confidence-desc">Some relevant info but notable uncertainty. E.g. mid-tier political races, emerging market events, mixed evidence.</div>
+        </div>
+        <div class="confidence-card">
+          <div class="confidence-dots">
+            <div class="dot filled low"></div>
+            <div class="dot empty"></div>
+            <div class="dot empty"></div>
+          </div>
+          <div class="confidence-name">Low</div>
+          <div class="confidence-desc">Limited topic knowledge, highly unpredictable event, or unclear resolution criteria. <strong>Never generates BUY signals.</strong></div>
+        </div>
+      </div>
+
+      <div class="info-callout">
+        <strong>High confidence + large edge = worth serious attention.</strong><br>
+        Low confidence + large edge = probably noise.
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 8 -->
+    <section class="section" id="s8">
+      <div class="section-header">
+        <div class="section-num">08</div>
+        <h2>The Edge Distribution Chart</h2>
+      </div>
+
+      <p>This chart plots all analyzed markets as dots based on their edge value. It lets you see, at a glance, whether the current environment has many opportunities or few.</p>
+
+      <div class="chart-mock">
+        <div class="chart-label">Expected Value (higher = better signal)</div>
+        <div class="chart-dots">
+          <!-- threshold lines -->
+          <div class="threshold-line" style="left:29%;"></div>
+          <div class="threshold-line" style="left:71%;"></div>
+
+          <!-- BUY NO dots (left side) -->
+          <div class="cdot" style="background:var(--red); left:12%; bottom:75%; opacity:0.9;"></div>
+          <div class="cdot" style="background:var(--red); left:18%; bottom:45%; opacity:0.7;"></div>
+          <div class="cdot" style="background:var(--red); left:22%; bottom:30%; opacity:0.6;"></div>
+
+          <!-- HOLD dots (middle cluster) -->
+          <div class="cdot" style="background:var(--text-muted); left:38%; bottom:20%; opacity:0.5;"></div>
+          <div class="cdot" style="background:var(--text-muted); left:44%; bottom:14%; opacity:0.5;"></div>
+          <div class="cdot" style="background:var(--text-muted); left:50%; bottom:10%; opacity:0.5;"></div>
+          <div class="cdot" style="background:var(--text-muted); left:54%; bottom:18%; opacity:0.5;"></div>
+          <div class="cdot" style="background:var(--text-muted); left:60%; bottom:12%; opacity:0.5;"></div>
+
+          <!-- BUY YES dots (right side) -->
+          <div class="cdot" style="background:var(--green); left:76%; bottom:60%; opacity:0.9;"></div>
+          <div class="cdot" style="background:var(--green); left:82%; bottom:80%; opacity:0.9;"></div>
+          <div class="cdot" style="background:var(--green); left:88%; bottom:40%; opacity:0.7;"></div>
+          <div class="cdot" style="background:var(--green); left:92%; bottom:25%; opacity:0.6;"></div>
+        </div>
+        <div class="chart-axis">
+          <span style="color:var(--red);">←  BUY NO</span>
+          <span>−8%</span>
+          <span>0%</span>
+          <span>+8%</span>
+          <span style="color:var(--green);">BUY YES  →</span>
+        </div>
+      </div>
+
+      <p><strong>Dotted vertical lines</strong> mark the ±8% threshold. Dots outside these lines generate Research Alerts. Dots between the lines are HOLD. A cluster of high dots on one side means several compelling signals in that direction.</p>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 9 -->
+    <section class="section" id="s9">
+      <div class="section-header">
+        <div class="section-num">09</div>
+        <h2>The Markets Tab</h2>
+      </div>
+
+      <p>The Markets tab shows every market currently passing the volume and date filters.</p>
+
+      <div class="card-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="card">
+          <div class="card-label">All Markets</div>
+          <div style="font-size:13px; color:var(--text-dim); margin-top:8px;">Every active market, grouped by event. Expand a group to see individual outcomes and prices.</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Watchlist ★</div>
+          <div style="font-size:13px; color:var(--text-dim); margin-top:8px;">Markets you've starred. Shows live prices and an Analyze button — works even below volume threshold.</div>
+        </div>
+      </div>
+
+      <p>When an event has multiple related markets (e.g. "Who will win Best Picture?" — one row per nominee), they appear as a single grouped row. Expanding them lets you spot inconsistencies: if the probabilities don't add up to ~100%, something might be mispriced.</p>
+
+      <div class="info-callout">
+        Watchlisted markets persist across browser sessions using local storage. Click the ★ icon on any market to add it.
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 10 -->
+    <section class="section" id="s10">
+      <div class="section-header">
+        <div class="section-num">10</div>
+        <h2>The Activity Log</h2>
+      </div>
+
+      <p>The Activity Log (right sidebar) is a real-time feed of everything the backend is doing.</p>
+
+      <div class="log-feed">
+        <div class="log-entry">
+          <div class="log-meta">
+            <span class="badge info">info</span>
+            <span class="log-time">14:32:01</span>
+            <span class="log-module">market_fetch</span>
+          </div>
+          <div class="log-msg">Fetched <strong>247 markets</strong> from Polymarket Gamma API</div>
+        </div>
+        <div class="log-entry">
+          <div class="log-meta">
+            <span class="badge analysis">analysis</span>
+            <span class="log-time">14:32:04</span>
+            <span class="log-module">probability_estimator</span>
+          </div>
+          <div class="log-msg">Estimating: <strong>Will the Fed cut rates before December?</strong></div>
+        </div>
+        <div class="log-entry">
+          <div class="log-meta">
+            <span class="badge analysis">analysis</span>
+            <span class="log-time">14:32:07</span>
+            <span class="log-module">probability_estimator</span>
+          </div>
+          <div class="log-msg">Estimate: <strong>62.0%</strong> (medium confidence)</div>
+        </div>
+        <div class="log-entry">
+          <div class="log-meta">
+            <span class="badge signal">signal</span>
+            <span class="log-time">14:32:08</span>
+            <span class="log-module">edge_calculator</span>
+          </div>
+          <div class="log-msg"><strong>BUY YES</strong> — Will the Fed cut rates before December? | Edge: +18.3%</div>
+        </div>
+        <div class="log-entry">
+          <div class="log-meta">
+            <span class="badge error">error</span>
+            <span class="log-time">14:32:12</span>
+            <span class="log-module">probability_estimator</span>
+          </div>
+          <div class="log-msg">Rate limit hit — retrying in 3s</div>
+        </div>
+      </div>
+
+      <p>Each entry shows the level, timestamp, module, and message. A flood of red errors may need attention — but single errors are usually handled gracefully with automatic retry.</p>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 11 -->
+    <section class="section" id="s11">
+      <div class="section-header">
+        <div class="section-num">11</div>
+        <h2>The Full Pipeline</h2>
+      </div>
+
+      <p>Here's exactly what happens, step by step, from market fetch to Research Alert appearing on screen.</p>
+
+      <div class="pipeline">
+
+        <div class="pipeline-step">
+          <div class="step-connector">
+            <div class="step-num">1</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-content">
+            <div class="step-title">Market Fetch <span class="step-badge">every 60s</span></div>
+            <div class="step-desc">Backend calls Polymarket's Gamma API. Filters out markets with &lt;$500k volume, closing within 7 days, or already closed.</div>
+          </div>
+        </div>
+
+        <div class="pipeline-step">
+          <div class="step-connector">
+            <div class="step-num">2</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-content">
+            <div class="step-title">Price Extraction</div>
+            <div class="step-desc">Extracts current YES and NO prices from Polymarket's <code style="font-family:var(--font-mono); font-size:12px; background:var(--surface2); padding:1px 5px; border-radius:3px;">outcomePrices</code> field (JSON-encoded string).</div>
+          </div>
+        </div>
+
+        <div class="pipeline-step">
+          <div class="step-connector">
+            <div class="step-num">3</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-content">
+            <div class="step-title">Category Inference</div>
+            <div class="step-desc">Infers category (Politics, Sports, Crypto, etc.) from the event's ticker/slug using keyword matching — Polymarket doesn't provide a clean category field.</div>
+          </div>
+        </div>
+
+        <div class="pipeline-step">
+          <div class="step-connector">
+            <div class="step-num">4</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-content">
+            <div class="step-title">AI Estimation <span class="step-badge">cached 24h</span></div>
+            <div class="step-desc">Calls Claude Haiku with the question, category, current price, and 8 calibration rules. Returns: <code style="font-family:var(--font-mono); font-size:12px; background:var(--surface2); padding:1px 5px; border-radius:3px;">estimated_probability</code>, <code style="font-family:var(--font-mono); font-size:12px; background:var(--surface2); padding:1px 5px; border-radius:3px;">confidence</code>, <code style="font-family:var(--font-mono); font-size:12px; background:var(--surface2); padding:1px 5px; border-radius:3px;">reasoning</code>, <code style="font-family:var(--font-mono); font-size:12px; background:var(--surface2); padding:1px 5px; border-radius:3px;">key_factors</code>. Result cached in memory + SQLite.</div>
+          </div>
+        </div>
+
+        <div class="pipeline-step">
+          <div class="step-connector">
+            <div class="step-num">5</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-content">
+            <div class="step-title">Edge Calculation</div>
+            <div class="step-desc">Computes edge, applies price-extremes filter (&lt;3¢ or &gt;97¢ → auto HOLD), applies confidence weight, determines signal, calculates EV.</div>
+          </div>
+        </div>
+
+        <div class="pipeline-step">
+          <div class="step-connector">
+            <div class="step-num">6</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-content">
+            <div class="step-title">Scan Cache <span class="step-badge">5 min TTL</span></div>
+            <div class="step-desc">Full scan result cached for 5 minutes. Concurrent requests get the previous cached result rather than triggering redundant scans.</div>
+          </div>
+        </div>
+
+        <div class="pipeline-step">
+          <div class="step-connector">
+            <div class="step-num">7</div>
+          </div>
+          <div class="step-content">
+            <div class="step-title">Frontend Display <span class="step-badge">polls every 30s</span></div>
+            <div class="step-desc">Dashboard polls <code style="font-family:var(--font-mono); font-size:12px; background:var(--surface2); padding:1px 5px; border-radius:3px;">/api/edge/scan</code>, updates the Stats Bar, Research Alerts table, Edge Distribution Chart, and watchlisted market prices.</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 12 -->
+    <section class="section" id="s12">
+      <div class="section-header">
+        <div class="section-num">12</div>
+        <h2>How to Place a Bet Using This Tool</h2>
+      </div>
+
+      <p>ProjectVolo never touches your money. Here's the workflow for going from a Research Alert to an actual position on Polymarket.</p>
+
+      <div class="workflow">
+        <div class="workflow-step">
+          <div class="workflow-step-num">1</div>
+          <div class="workflow-step-text"><strong>Find a Research Alert</strong> — Focus on high confidence, edge &gt;15%, and high EV (sorted to the top automatically).</div>
+        </div>
+        <div class="workflow-step">
+          <div class="workflow-step-num">2</div>
+          <div class="workflow-step-text"><strong>Read the Research Report</strong> — Click the row to expand it. Does the AI's logic make sense? Is the reasoning specific or vague?</div>
+        </div>
+        <div class="workflow-step">
+          <div class="workflow-step-num">3</div>
+          <div class="workflow-step-text"><strong>Do your own research</strong> — The AI has a knowledge cutoff. Google the topic, check for recent news, look at the Polymarket price history.</div>
+        </div>
+        <div class="workflow-step">
+          <div class="workflow-step-num">4</div>
+          <div class="workflow-step-text"><strong>Visit Polymarket</strong> — Check the current price (it may have moved), volume, and order book liquidity.</div>
+        </div>
+        <div class="workflow-step">
+          <div class="workflow-step-num">5</div>
+          <div class="workflow-step-text"><strong>Make your decision</strong> — You — not the AI — decide whether to trade. The AI is a starting point, not a directive.</div>
+        </div>
+        <div class="workflow-step">
+          <div class="workflow-step-num">6</div>
+          <div class="workflow-step-text"><strong>Size your position</strong> — Never bet more than you can afford to lose. A reasonable starting point: <strong>1–5% of total bankroll</strong> per trade.</div>
+        </div>
+        <div class="workflow-step">
+          <div class="workflow-step-num">7</div>
+          <div class="workflow-step-text"><strong>Track your results</strong> — Record every trade: signal, reasoning, price paid, outcome. Over time this tells you if the signals actually work for you.</div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 13 -->
+    <section class="section" id="s13">
+      <div class="section-header">
+        <div class="section-num">13</div>
+        <h2>What the AI Actually Does</h2>
+      </div>
+
+      <p>It's important to be honest about what Claude Haiku (the AI model powering ProjectVolo) actually is and isn't.</p>
+
+      <div class="card-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="card" style="border-color: rgba(34,197,94,0.2);">
+          <div class="card-label" style="color:var(--green);">✓ What it knows</div>
+          <ul style="font-size:13px; color:var(--text-dim); margin-top:10px; list-style:none; padding:0;">
+            <li style="margin-bottom:6px;">• Historical events, trends, statistics</li>
+            <li style="margin-bottom:6px;">• How political &amp; economic systems work</li>
+            <li style="margin-bottom:6px;">• Sports team performance &amp; player histories</li>
+            <li style="margin-bottom:6px;">• Scientific and technical topics</li>
+            <li>• Probabilistic reasoning</li>
+          </ul>
+        </div>
+        <div class="card" style="border-color: rgba(239,68,68,0.2);">
+          <div class="card-label" style="color:var(--red);">✗ What it doesn't know</div>
+          <ul style="font-size:13px; color:var(--text-dim); margin-top:10px; list-style:none; padding:0;">
+            <li style="margin-bottom:6px;">• Anything after its training cutoff</li>
+            <li style="margin-bottom:6px;">• Real-time prices or live news</li>
+            <li style="margin-bottom:6px;">• Private or non-public information</li>
+            <li>• Obscure niche topics</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>How it reasons</h3>
+      <div class="workflow">
+        <div class="workflow-step">
+          <div class="workflow-step-num">1</div>
+          <div class="workflow-step-text">Start with a <strong>base rate</strong> — what's the historical frequency of this type of event?</div>
+        </div>
+        <div class="workflow-step">
+          <div class="workflow-step-num">2</div>
+          <div class="workflow-step-text"><strong>Update</strong> based on specific evidence it knows about this situation</div>
+        </div>
+        <div class="workflow-step">
+          <div class="workflow-step-num">3</div>
+          <div class="workflow-step-text"><strong>Regress toward 50%</strong> to account for model overconfidence</div>
+        </div>
+        <div class="workflow-step">
+          <div class="workflow-step-num">4</div>
+          <div class="workflow-step-text"><strong>Flag low knowledge</strong> — sets confidence to Low when information is limited</div>
+        </div>
+        <div class="workflow-step">
+          <div class="workflow-step-num">5</div>
+          <div class="workflow-step-text">Respect <strong>mutually exclusive constraints</strong> — if 10 candidates compete, most should be well below 50%</div>
+        </div>
+      </div>
+
+      <div class="info-callout">
+        Treat the AI like a well-read research analyst who's been off the grid for a few months. <strong>Smart and systematic, but potentially behind on recent news.</strong>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 14 -->
+    <section class="section" id="s14">
+      <div class="section-header">
+        <div class="section-num">14</div>
+        <h2>Limitations and Risks</h2>
+      </div>
+
+      <p>This section is the most important in the guide. Please read it carefully.</p>
+
+      <div class="warning-box">
+        <div class="warning-box-title">⚠ Risk Factors</div>
+        <ul class="risk-list">
+          <li>The AI can be wrong. A 65% estimate means you'll be wrong 35% of the time — and calibration isn't perfect.</li>
+          <li>Markets can be efficient. Sophisticated traders may have already priced in what the AI noticed.</li>
+          <li>No live data. A signal might be invalidated by news from yesterday. Always check current news.</li>
+          <li>Knowledge cutoff means stale reasoning on fast-moving situations.</li>
+          <li>Low-volume markets are riskier — even $500k+ volume markets can have limited liquidity.</li>
+          <li>Transaction costs eat into edge. An 8% signal might be marginal after Polymarket fees.</li>
+          <li><strong>You can lose all of your money.</strong> Prediction market positions can go to zero.</li>
+        </ul>
+      </div>
+
+      <div class="info-callout" style="border-left-color: var(--red); background: rgba(239,68,68,0.04);">
+        <strong>This is not financial advice.</strong> ProjectVolo is a research tool built for educational exploration. Nothing in this guide or in the AI's output constitutes financial advice. All trading decisions are yours alone.
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 15 -->
+    <section class="section" id="s15">
+      <div class="section-header">
+        <div class="section-num">15</div>
+        <h2>Glossary</h2>
+      </div>
+
+      <div class="glossary-grid">
+        <div class="gloss-item"><div class="gloss-term">Base Rate</div><div class="gloss-def">Historical frequency of an event type. The AI always starts here before considering specific evidence.</div></div>
+        <div class="gloss-item"><div class="gloss-term">BUY YES</div><div class="gloss-def">Signal meaning YES may be underpriced. Edge &gt; +8% required.</div></div>
+        <div class="gloss-item"><div class="gloss-term">BUY NO</div><div class="gloss-def">Signal meaning NO may be underpriced (YES overpriced). Edge &lt; −8% required.</div></div>
+        <div class="gloss-item"><div class="gloss-term">Calibration</div><div class="gloss-def">How well a stated confidence matches reality. A 70% estimate should be right ~70% of the time.</div></div>
+        <div class="gloss-item"><div class="gloss-term">Confidence</div><div class="gloss-def">AI's self-reported certainty: Low, Medium, or High. Low never generates BUY signals.</div></div>
+        <div class="gloss-item"><div class="gloss-term">Edge</div><div class="gloss-def">AI Estimate − Market Price, in percentage points.</div></div>
+        <div class="gloss-item"><div class="gloss-term">EV</div><div class="gloss-def">Expected Value = |Edge| × Confidence Weight. Quality score for ranking Research Alerts.</div></div>
+        <div class="gloss-item"><div class="gloss-term">Gamma API</div><div class="gloss-def">Polymarket's public data API (gamma-api.polymarket.com) used by ProjectVolo.</div></div>
+        <div class="gloss-item"><div class="gloss-term">HOLD</div><div class="gloss-def">No action recommended — edge &lt;8%, confidence too low, or price at an extreme.</div></div>
+        <div class="gloss-item"><div class="gloss-term">Knowledge Cutoff</div><div class="gloss-def">Date after which the AI has no information. Events after this date are unknown to the model.</div></div>
+        <div class="gloss-item"><div class="gloss-term">Liquidity</div><div class="gloss-def">How much money is being actively traded. Higher liquidity = easier to enter/exit positions.</div></div>
+        <div class="gloss-item"><div class="gloss-term">Market Price</div><div class="gloss-def">Current YES price on Polymarket, set by supply and demand. 0.45 = 45% implied probability.</div></div>
+        <div class="gloss-item"><div class="gloss-term">MIN_VOLUME</div><div class="gloss-def">Minimum total trading volume ($500,000) required for inclusion in analysis.</div></div>
+        <div class="gloss-item"><div class="gloss-term">NO Share</div><div class="gloss-def">Pays $1.00 if the event does NOT happen, $0 if it does.</div></div>
+        <div class="gloss-item"><div class="gloss-term">Polymarket</div><div class="gloss-def">The prediction market platform ProjectVolo reads from. Runs on Polygon blockchain, denominated in USDC.</div></div>
+        <div class="gloss-item"><div class="gloss-term">Rate Limit</div><div class="gloss-def">Anthropic API restriction on requests per minute. ProjectVolo handles with auto-retry + 3s delay.</div></div>
+        <div class="gloss-item"><div class="gloss-term">Research Alert</div><div class="gloss-def">Market where the AI found ≥8% gap between estimate and market price.</div></div>
+        <div class="gloss-item"><div class="gloss-term">Scan Cache</div><div class="gloss-def">5-minute server-side cache of full scan results. Prevents redundant re-processing.</div></div>
+        <div class="gloss-item"><div class="gloss-term">SQLite</div><div class="gloss-def">Lightweight database used to persist probability estimates across server restarts.</div></div>
+        <div class="gloss-item"><div class="gloss-term">TTL</div><div class="gloss-def">Time To Live. Estimate cache: 24h. Scan cache: 5min. Market fetch: 60s.</div></div>
+        <div class="gloss-item"><div class="gloss-term">USDC</div><div class="gloss-def">Stablecoin pegged to the US dollar. $1 USDC ≈ $1 USD. Used as Polymarket's currency.</div></div>
+        <div class="gloss-item"><div class="gloss-term">YES Share</div><div class="gloss-def">Pays $1.00 if the event happens, $0 if it doesn't.</div></div>
+      </div>
+    </section>
+
+    <div class="disclaimer">
+      ProjectVolo is an independent research tool. It is not affiliated with Polymarket or Anthropic.<br>
+      Nothing in this guide constitutes financial advice. Trade responsibly.
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // Highlight active TOC item on scroll
+  const sections = document.querySelectorAll('.section');
+  const tocItems = document.querySelectorAll('.toc-item');
+
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        tocItems.forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => obs.observe(s));
+</script>
+
+</body>
+</html>

@@ -169,21 +169,30 @@ def _clamp(value: float, lo: float = 0.01, hi: float = 0.99) -> float:
 
 
 async def _call_anthropic(client: anthropic.AsyncAnthropic, system: str, user: str) -> str:
-    """Single Anthropic API call; returns raw text or raises RuntimeError."""
-    try:
-        message = await client.messages.create(
-            model=MODEL,
-            max_tokens=1024,
-            system=system,
-            messages=[{"role": "user", "content": user}],
-        )
-    except anthropic.APIError as exc:
-        logger.error("Anthropic API error: %s", exc)
-        raise RuntimeError(f"Anthropic API error: {exc}") from exc
+    """Single Anthropic API call with one 429 retry; returns raw text or raises RuntimeError."""
+    for attempt in range(2):
+        try:
+            message = await client.messages.create(
+                model=MODEL,
+                max_tokens=1024,
+                system=system,
+                messages=[{"role": "user", "content": user}],
+            )
+            break  # success — exit retry loop
+        except anthropic.RateLimitError as exc:
+            if attempt == 0:
+                logger.warning("Rate limited by Anthropic (429) — waiting 10s before retry")
+                await asyncio.sleep(10.0)
+            else:
+                logger.error("Rate limited again after retry — giving up: %s", exc)
+                raise RuntimeError(f"Anthropic rate limit error: {exc}") from exc
+        except anthropic.APIError as exc:
+            logger.error("Anthropic API error: %s", exc)
+            raise RuntimeError(f"Anthropic API error: {exc}") from exc
     raw_text = message.content[0].text if message.content else ""
     if not raw_text:
         raise RuntimeError("Anthropic returned an empty response")
-    await asyncio.sleep(0.5)
+    await asyncio.sleep(3.0)
     return raw_text
 
 
