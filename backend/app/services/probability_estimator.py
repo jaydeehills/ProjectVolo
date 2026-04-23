@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import os
@@ -86,6 +87,10 @@ there are N candidates, the average probability must be approximately 1/N. Do \
 not estimate any single candidate above 50% unless there is overwhelming \
 evidence they are the clear frontrunner. Adjust your base rate accordingly \
 before updating from evidence.
+8. **Flag limited knowledge.** If the market question involves a specific person, \
+team, or entity you have limited knowledge about, set confidence to "low" \
+regardless of your probability estimate. Low confidence signals should be \
+weighted less heavily by the edge calculator.
 
 OUTPUT FORMAT — respond with **only** a JSON object, no markdown fences:
 {
@@ -104,21 +109,31 @@ evidence from multiple sources and clear resolution criteria.
 knowledge, your updates, and the overconfidence adjustment you applied.
 - key_factors: 3-6 concrete factors that most influenced your estimate."""
 
+RETRY_PROMPT_TEMPLATE = (
+    "Return only a JSON object with these fields: "
+    "estimated_probability (float 0-1), confidence (low/medium/high), "
+    "reasoning (string), key_factors (list of strings). "
+    "Question: {question}"
+)
+
 USER_PROMPT_TEMPLATE = """\
 Prediction market question: {question}
 
 Category: {category}
+
+Current market price (what traders are currently pricing this at): {yes_price:.1%}
 
 Additional context: {context}
 
 Estimate the probability that this question resolves YES."""
 
 
-def _build_user_prompt(question: str, category: str, context: str) -> str:
+def _build_user_prompt(question: str, category: str, context: str, yes_price: float = 0.5) -> str:
     return USER_PROMPT_TEMPLATE.format(
         question=question,
         category=category or "Unknown",
         context=context or "None provided.",
+        yes_price=yes_price,
     )
 
 
@@ -153,6 +168,25 @@ def _clamp(value: float, lo: float = 0.01, hi: float = 0.99) -> float:
     return max(lo, min(hi, value))
 
 
+async def _call_anthropic(client: anthropic.AsyncAnthropic, system: str, user: str) -> str:
+    """Single Anthropic API call; returns raw text or raises RuntimeError."""
+    try:
+        message = await client.messages.create(
+            model=MODEL,
+            max_tokens=1024,
+            system=system,
+            messages=[{"role": "user", "content": user}],
+        )
+    except anthropic.APIError as exc:
+        logger.error("Anthropic API error: %s", exc)
+        raise RuntimeError(f"Anthropic API error: {exc}") from exc
+    raw_text = message.content[0].text if message.content else ""
+    if not raw_text:
+        raise RuntimeError("Anthropic returned an empty response")
+    await asyncio.sleep(0.5)
+    return raw_text
+
+
 def _get_cached(market_id: str) -> Optional[ProbabilityEstimate]:
     """Return a cached estimate if it exists and hasn't expired."""
     entry = _estimate_cache.get(market_id)
@@ -171,6 +205,7 @@ async def estimate_probability(
     context: str = "",
     category: str = "",
     force_refresh: bool = False,
+    yes_price: float = 0.5,
 ) -> ProbabilityEstimate:
     """Call the Anthropic API to estimate the probability of a market question.
 
@@ -190,33 +225,32 @@ async def estimate_probability(
     if not api_key:
         raise RuntimeError("ANTHROPIC_API_KEY environment variable is not set")
 
-    user_prompt = _build_user_prompt(question, category, context)
+    user_prompt = _build_user_prompt(question, category, context, yes_price)
     logger.info("Requesting estimate from Anthropic (%s) for: %s", MODEL, question[:80])
     agent_log("analysis", "estimator", f"Estimating: {question[:80]}")
 
     client = anthropic.AsyncAnthropic(api_key=api_key)
-    try:
-        message = await client.messages.create(
-            model=MODEL,
-            max_tokens=1024,
-            system=SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": user_prompt}],
-        )
-    except anthropic.APIError as exc:
-        logger.error("Anthropic API error: %s", exc)
-        raise RuntimeError(f"Anthropic API error: {exc}") from exc
-
-    raw_text = message.content[0].text if message.content else ""
-    if not raw_text:
-        raise RuntimeError("Anthropic returned an empty response")
-
+    raw_text = await _call_anthropic(client, SYSTEM_PROMPT, user_prompt)
     logger.debug("Raw model response: %s", raw_text[:500])
 
     try:
         parsed = _parse_response(raw_text)
-    except (json.JSONDecodeError, ValueError) as exc:
-        logger.error("Failed to parse Anthropic response: %s — raw: %s", exc, raw_text[:300])
-        raise RuntimeError("Failed to parse probability estimate from model output") from exc
+    except (json.JSONDecodeError, ValueError) as first_exc:
+        logger.warning(
+            "Failed to parse first response for market %s (%s) — retrying with simplified prompt",
+            market_id, first_exc,
+        )
+        retry_prompt = RETRY_PROMPT_TEMPLATE.format(question=question)
+        retry_text = await _call_anthropic(client, "You are a JSON-only response bot.", retry_prompt)
+        logger.debug("Retry response: %s", retry_text[:500])
+        try:
+            parsed = _parse_response(retry_text)
+        except (json.JSONDecodeError, ValueError) as exc:
+            logger.error(
+                "Failed to parse retry response for market %s: %s — raw: %s",
+                market_id, exc, retry_text[:300],
+            )
+            raise RuntimeError("Failed to parse probability estimate from model output") from exc
 
     confidence = parsed.get("confidence", "medium")
     if confidence not in ("low", "medium", "high"):
@@ -229,7 +263,7 @@ async def estimate_probability(
     estimate = ProbabilityEstimate(
         market_id=market_id,
         question=question,
-        estimated_probability=_clamp(float(parsed["estimated_probability"])),
+        estimated_probability=_clamp(float(parsed.get("estimated_probability") or 0.5)),
         confidence=confidence,
         reasoning=str(parsed.get("reasoning", "")),
         key_factors=key_factors,

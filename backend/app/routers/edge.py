@@ -26,6 +26,7 @@ async def scan_for_edges():
                 market_id=market.market_id,
                 question=market.question,
                 category=market.category,
+                yes_price=market.yes_price,
             )
             edge_result = calculate_edge(market, estimate)
             results.append(edge_result)

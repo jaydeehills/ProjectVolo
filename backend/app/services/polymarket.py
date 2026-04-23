@@ -1,3 +1,4 @@
+import json
 import time
 import logging
 from typing import Optional, List, Tuple
@@ -136,9 +137,23 @@ def _normalize_event(raw_event: dict, raw_market: dict) -> Optional[Market]:
         return None
 
     # --- Extract yes/no prices from the market's parallel outcomes arrays ---
-    # The events endpoint uses outcomePrices + outcomes arrays (not tokens).
-    outcomes = raw_market.get("outcomes", [])
-    outcome_prices = raw_market.get("outcomePrices", [])
+    # The Gamma API returns outcomes and outcomePrices as JSON-encoded strings,
+    # e.g. "[\"Yes\", \"No\"]" — parse them before use.
+    outcomes_raw = raw_market.get("outcomes") or "[]"
+    outcome_prices_raw = raw_market.get("outcomePrices") or "[]"
+    try:
+        outcomes = json.loads(outcomes_raw) if isinstance(outcomes_raw, str) else (outcomes_raw or [])
+        outcome_prices = json.loads(outcome_prices_raw) if isinstance(outcome_prices_raw, str) else (outcome_prices_raw or [])
+    except (json.JSONDecodeError, TypeError):
+        outcomes = []
+        outcome_prices = []
+    if not isinstance(outcome_prices, list):
+        logger.warning(
+            "Market %s has non-list outcomePrices (%r) — skipping",
+            raw_market.get("id"),
+            outcome_prices,
+        )
+        return None
     yes_price = 0.5
     no_price = 0.5
     for outcome, price_str in zip(outcomes, outcome_prices):

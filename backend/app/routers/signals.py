@@ -26,6 +26,7 @@ async def get_trade_signals():
                 market_id=market.market_id,
                 question=market.question,
                 category=market.category,
+                yes_price=market.yes_price,
             )
             edge_result = calculate_edge(market, estimate)
             if edge_result.signal != "HOLD":

@@ -65,3 +65,4 @@ class EstimateRequest(BaseModel):
     category: str = Field(default="", max_length=200)
     context: str = Field(default="", max_length=5000)
     force_refresh: bool = Field(default=False, description="Bypass cache and force a fresh estimate")
+    yes_price: Optional[float] = Field(default=None, ge=0, le=1, description="Current market price for YES outcome")
